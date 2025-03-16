@@ -6,9 +6,10 @@ import { World, Body, Box, Vec3, Material, ContactMaterial } from 'cannon-es'
 
 // シーン、カメラ、レンダラーの作成
 const scene = new THREE.Scene()
+scene.background = new THREE.Color(0xffe4b5)
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-camera.position.set(0, 0, 8)
-camera.rotation.set(0.2, 0.3, 0)
+camera.position.set(10, 0, 40)
+camera.rotation.set(0.2, 0.2, 0)
 
 const renderer = new THREE.WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -18,10 +19,10 @@ document.body.appendChild(renderer.domElement)
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
 scene.add(ambientLight)
 
-const pointLight = new THREE.PointLight(0xffddcc, 1, 100)
-pointLight.position.set(5, 5, 5)
-pointLight.castShadow = true
-scene.add(pointLight)
+const DirectionalLight = new THREE.DirectionalLight(0xffe4b5, 1)
+DirectionalLight.position.set(10, 5, 50)
+DirectionalLight.castShadow = true
+scene.add(DirectionalLight)
 
 // 物理演算ワールドを作成
 const world = new World()
@@ -36,8 +37,8 @@ const floorBody = new Body({
 world.addBody(floorBody)
 
 // 床（Three.js用）
-const floorGeometry = new THREE.BoxGeometry(10, 0.2, 10)
-const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x555555 })
+const floorGeometry = new THREE.BoxGeometry(30, 0.2, 30)
+const floorMaterial = new THREE.MeshBasicMaterial({ color: 0xffe4b5 })
 const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial)
 floorMesh.position.y = -2
 scene.add(floorMesh)
@@ -46,7 +47,7 @@ scene.add(floorMesh)
  const textCannonMaterial = new Material('textMaterial')
  const floorCannonMaterial = new Material('floorMaterial')
  const ContactMaterialOptions = {
-   restitution: 0.2, // 反発係数
+   restitution: 0.5, // 反発係数
    friction: 0.3 // 摩擦係数
  }
 
@@ -58,34 +59,33 @@ scene.add(floorMesh)
 const fontLoader = new FontLoader()
 const textBodies = []
 const textMeshes = []
-
-function createText(text, positionY) {
+function createText(text, positionX, positionY, positionZ) {
   fontLoader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', (font) => {
     const textGeometry = new TextGeometry(text, {
       font: font,
-      size: 1,
-      depth: 0.3,
+      size: 3,
+      depth: 1,
       bevelEnabled: true,
-      bevelThickness: 0.05,
-      bevelSize: 0.05,
+      bevelThickness: 0.5,
+      bevelSize: 0.2,
     })
 
     // テキストの質感: やわらかい
     const textMaterial = new THREE.MeshStandardMaterial({
-      color: 0xffaabb,
+      color: 0xffffff,
       roughness: 0.5,
       metalness: 0.4,
     })
     const textMesh = new THREE.Mesh(textGeometry, textMaterial)
-    textMesh.position.set(-3, positionY, 0)
+    textMesh.position.set(positionX, positionY, positionZ)
     scene.add(textMesh)
     textMeshes.push(textMesh)
   
     // Cannon.js用のボディ
     const textBody = new Body({
       mass: 1,
-      shape: new Box(new Vec3(0.5, 0.5, 0.1)),
-      position: new Vec3(-3, positionY, 0),
+      shape: new Box(new Vec3(1, 1, 1)),
+      position: new Vec3(positionX, positionY, positionZ),
     })
   
     // 回転を制御
@@ -113,8 +113,5 @@ function animate() {
 }
 
 // 関数の実行
-createText('Portfolio', 3)
-setTimeout(() => {
-  createText('k.miyazaki', 3)
-}, 1000)
+createText('k.miyazaki Portfolio', 0, 0, 0)
 animate()
