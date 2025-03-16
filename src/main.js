@@ -19,7 +19,7 @@ document.body.appendChild(renderer.domElement)
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
 scene.add(ambientLight)
 
-const DirectionalLight = new THREE.DirectionalLight(0xffe4b5, 1)
+const DirectionalLight = new THREE.DirectionalLight(0xffe4b5, 2)
 DirectionalLight.position.set(10, 5, 50)
 DirectionalLight.castShadow = true
 scene.add(DirectionalLight)
