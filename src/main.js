@@ -8,8 +8,6 @@ import { World, Body, Box, Vec3, Material, ContactMaterial } from 'cannon-es'
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0xffe4b5)
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-camera.position.set(15, 10, 40)
-camera.rotation.set(0, 0, 0)
 
 const renderer = new THREE.WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -112,6 +110,33 @@ function animate() {
   requestAnimationFrame(animate)
 }
 
+// ウィンドウリサイズ
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.updateProjectionMatrix()
+
+  renderer.setSize(window.innerWidth, window.innerHeight)
+  renderer.setPixelRatio(window.devicePixelRatio)
+}
+
+// レスポンシブ
+function updateCamera() {
+  if(window.innerWidth < 768) {
+    camera.position.set(15, 10, 60)
+    camera.fov = 75
+  } else {
+    camera.position.set(15, 10, 40)
+    camera.fov = 60
+  }
+}
+
+
 // 関数の実行
 createText('k.miyazaki Portfolio', 0, 5, 0)
 animate()
+updateCamera()
+
+window.addEventListener('resize', () => {
+  onWindowResize()
+  updateCamera()
+})
