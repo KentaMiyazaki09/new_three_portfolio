@@ -8,8 +8,8 @@ import { World, Body, Box, Vec3, Material, ContactMaterial } from 'cannon-es'
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0xffe4b5)
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-camera.position.set(10, 0, 40)
-camera.rotation.set(0.2, 0.2, 0)
+camera.position.set(15, 10, 40)
+camera.rotation.set(0, 0, 0)
 
 const renderer = new THREE.WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -19,8 +19,8 @@ document.body.appendChild(renderer.domElement)
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
 scene.add(ambientLight)
 
-const DirectionalLight = new THREE.DirectionalLight(0xffe4b5, 2)
-DirectionalLight.position.set(10, 5, 50)
+const DirectionalLight = new THREE.DirectionalLight(0xffe4b5, 3)
+DirectionalLight.position.set(-5, -15, 60)
 DirectionalLight.castShadow = true
 scene.add(DirectionalLight)
 
@@ -37,7 +37,7 @@ const floorBody = new Body({
 world.addBody(floorBody)
 
 // 床（Three.js用）
-const floorGeometry = new THREE.BoxGeometry(30, 0.2, 30)
+const floorGeometry = new THREE.BoxGeometry(100, 0.2, 50)
 const floorMaterial = new THREE.MeshBasicMaterial({ color: 0xffe4b5 })
 const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial)
 floorMesh.position.y = -2
@@ -63,11 +63,11 @@ function createText(text, positionX, positionY, positionZ) {
   fontLoader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', (font) => {
     const textGeometry = new TextGeometry(text, {
       font: font,
-      size: 3,
+      size: 2.5,
       depth: 1,
       bevelEnabled: true,
-      bevelThickness: 0.5,
-      bevelSize: 0.2,
+      bevelThickness: 1,
+      bevelSize: 0.5,
     })
 
     // テキストの質感: やわらかい
@@ -84,7 +84,7 @@ function createText(text, positionX, positionY, positionZ) {
     // Cannon.js用のボディ
     const textBody = new Body({
       mass: 1,
-      shape: new Box(new Vec3(1, 1, 1)),
+      shape: new Box(new Vec3(1, 2, 1)),
       position: new Vec3(positionX, positionY, positionZ),
     })
   
@@ -113,5 +113,5 @@ function animate() {
 }
 
 // 関数の実行
-createText('k.miyazaki Portfolio', 0, 0, 0)
+createText('k.miyazaki Portfolio', 0, 5, 0)
 animate()
