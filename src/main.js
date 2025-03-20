@@ -6,21 +6,49 @@ import { World, Body, Box, Vec3, Material, ContactMaterial } from 'cannon-es'
 
 // シーン、カメラ、レンダラーの作成
 const scene = new THREE.Scene()
-scene.background = new THREE.Color(0xffe4b5)
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+camera.rotation.set(0, 0, 0)
 
 const renderer = new THREE.WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)
+renderer.shadowMap.enabled = true
+renderer.shadowMap.autoUpdate = true
 document.body.appendChild(renderer.domElement)
 
 // ライトの設置
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.0)
 scene.add(ambientLight)
 
-const DirectionalLight = new THREE.DirectionalLight(0xffe4b5, 3)
-DirectionalLight.position.set(-5, -15, 60)
-DirectionalLight.castShadow = true
-scene.add(DirectionalLight)
+const directionalLight = new THREE.DirectionalLight(0xffffff, 2)
+directionalLight.position.set(15, 10, 11)
+directionalLight.target.position.set(15, 0, 0)
+directionalLight.castShadow = true
+scene.add(directionalLight)
+scene.add(directionalLight.target)
+
+// 影の範囲を広げる
+directionalLight.shadow.camera.left = -20;
+directionalLight.shadow.camera.right = 20;
+directionalLight.shadow.camera.top = 20;
+directionalLight.shadow.camera.bottom = -20;
+directionalLight.shadow.camera.near = 0.5;
+directionalLight.shadow.camera.far = 100;
+directionalLight.shadow.bias = -0.0001;
+
+// const lightHelper = new THREE.DirectionalLightHelper(directionalLight, 5)
+// scene.add(lightHelper)
+
+// 背景の壁
+const bgGeometry = new THREE.PlaneGeometry(100, 100)
+const beMaterial = new THREE.MeshStandardMaterial({
+  color: 0xffe4b5,
+  roughness: 1.0,
+  metalness: 0.0,
+})
+const bgPlane = new THREE.Mesh(bgGeometry, beMaterial)
+bgPlane.position.set(15, 0, -10)
+bgPlane.receiveShadow = true
+scene.add(bgPlane)
 
 // 物理演算ワールドを作成
 const world = new World()
@@ -36,9 +64,15 @@ world.addBody(floorBody)
 
 // 床（Three.js用）
 const floorGeometry = new THREE.BoxGeometry(100, 0.2, 50)
-const floorMaterial = new THREE.MeshBasicMaterial({ color: 0xffe4b5 })
+const floorMaterial = new THREE.MeshStandardMaterial({
+  color: 0xffe4b5,
+  roughness: 0.7,
+  metalness: 0,
+})
 const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial)
 floorMesh.position.y = -2
+floorMesh.position.x = 15
+floorMesh.receiveShadow = true
 scene.add(floorMesh)
 
  // 反発係数を調整して弾みをコントロール
@@ -62,10 +96,10 @@ function createText(text, positionX, positionY, positionZ) {
     const textGeometry = new TextGeometry(text, {
       font: font,
       size: 2.5,
-      depth: 1,
+      depth: 0.5,
       bevelEnabled: true,
-      bevelThickness: 1,
-      bevelSize: 0.5,
+      bevelThickness: 0.8,
+      bevelSize: 0.4,
     })
 
     // テキストの質感: やわらかい
@@ -76,15 +110,18 @@ function createText(text, positionX, positionY, positionZ) {
     })
     const textMesh = new THREE.Mesh(textGeometry, textMaterial)
     textMesh.position.set(positionX, positionY, positionZ)
+    textMesh.castShadow = true
     scene.add(textMesh)
     textMeshes.push(textMesh)
   
     // Cannon.js用のボディ
     const textBody = new Body({
       mass: 1,
-      shape: new Box(new Vec3(1, 2, 1)),
+      shape: new Box(new Vec3(1.5, 1.5, 0.5)),
       position: new Vec3(positionX, positionY, positionZ),
     })
+
+    textBody.allowSleep = false
   
     // 回転を制御
     textBody.fixedRotation = true
