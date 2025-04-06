@@ -4,13 +4,16 @@ import { FontLoader } from 'three/examples/jsm/Addons.js'
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
 import { World, Body, Box, Vec3, Material, ContactMaterial } from 'cannon-es'
 
+// dat gui
+import * as dat from 'dat.gui'
+const gui = new dat.GUI()
+
 // シーン、カメラ、レンダラーの作成
 const scene = new THREE.Scene()
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 camera.rotation.set(0, 0, 0)
 
 const renderer = new THREE.WebGLRenderer()
-renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.shadowMap.enabled = true
 renderer.shadowMap.autoUpdate = true
 document.body.appendChild(renderer.domElement)
@@ -26,6 +29,16 @@ directionalLight.castShadow = true
 scene.add(directionalLight)
 scene.add(directionalLight.target)
 
+const lightFolder = gui.addFolder('directionalLight')
+lightFolder.open()
+const lightSettings = {
+  color: '#ffffff',
+}
+
+lightFolder.addColor(lightSettings, 'color').onChange(value => {
+  directionalLight.color.set(value)
+})
+
 // 影の範囲を広げる
 directionalLight.shadow.camera.left = -20;
 directionalLight.shadow.camera.right = 20;
@@ -39,7 +52,7 @@ directionalLight.shadow.bias = -0.0001;
 // scene.add(lightHelper)
 
 // 背景の壁
-const bgGeometry = new THREE.PlaneGeometry(100, 100)
+const bgGeometry = new THREE.PlaneGeometry(200, 200)
 const beMaterial = new THREE.MeshStandardMaterial({
   color: 0xffe4b5,
   roughness: 1.0,
@@ -63,7 +76,7 @@ const floorBody = new Body({
 world.addBody(floorBody)
 
 // 床（Three.js用）
-const floorGeometry = new THREE.BoxGeometry(100, 0.2, 50)
+const floorGeometry = new THREE.BoxGeometry(200, 0.2, 150)
 const floorMaterial = new THREE.MeshStandardMaterial({
   color: 0xffe4b5,
   roughness: 0.7,
@@ -96,17 +109,20 @@ function createText(text, positionX, positionY, positionZ) {
     const textGeometry = new TextGeometry(text, {
       font: font,
       size: 2.5,
-      depth: 0.5,
+      depth: 0.1,
       bevelEnabled: true,
-      bevelThickness: 0.8,
-      bevelSize: 0.4,
+      curveSegments: 15,  // 曲線の滑らかさ（増やすとギザギザが減る）
+      bevelThickness: 0.7,
+      bevelSize: 0.2,
+      bevelSegment: 15, //解像度
     })
 
     // テキストの質感: やわらかい
     const textMaterial = new THREE.MeshStandardMaterial({
       color: 0xffffff,
       roughness: 0.5,
-      metalness: 0.4,
+      metalness: 0.1,
+      flatShading: false
     })
     const textMesh = new THREE.Mesh(textGeometry, textMaterial)
     textMesh.position.set(positionX, positionY, positionZ)
@@ -116,7 +132,7 @@ function createText(text, positionX, positionY, positionZ) {
   
     // Cannon.js用のボディ
     const textBody = new Body({
-      mass: 1,
+      mass: 0.1,
       shape: new Box(new Vec3(1.5, 1.5, 0.5)),
       position: new Vec3(positionX, positionY, positionZ),
     })
@@ -169,9 +185,10 @@ function updateCamera() {
 
 
 // 関数の実行
-createText('k.miyazaki Portfolio', 0, 5, 0)
+createText('k.miyazaki Portfolio', 0, 20, 0)
 animate()
 updateCamera()
+onWindowResize()
 
 window.addEventListener('resize', () => {
   onWindowResize()

@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "cannon-es": "^0.20.0",
+    "dat.gui": "^0.7.9",
     "three": "^0.174.0",
     "youtube-iframe-api-wrapper": "^1.1.0"
   }
