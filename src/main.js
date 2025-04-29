@@ -8,6 +8,15 @@ import { World, Body, Box, Vec3, Material, ContactMaterial } from 'cannon-es'
 import * as dat from 'dat.gui'
 const gui = new dat.GUI()
 
+// テクスチャローダー
+const textureLoader = new THREE.TextureLoader()
+
+const textureSandstone = textureLoader.load('/red_sandstone_wall.jpg')
+textureSandstone.encoding = THREE.sRGBEncoding
+textureSandstone.wrapS = THREE.RepeatWrapping
+textureSandstone.wrapT = THREE.RepeatWrapping
+textureSandstone.repeat.set(1, 1)
+
 // シーン、カメラ、レンダラーの作成
 const scene = new THREE.Scene()
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
@@ -54,6 +63,7 @@ directionalLight.shadow.bias = -0.0001;
 // 背景の壁
 const bgGeometry = new THREE.PlaneGeometry(200, 200)
 const beMaterial = new THREE.MeshStandardMaterial({
+  map: textureSandstone,
   color: 0xffe4b5,
   roughness: 1.0,
   metalness: 0.0,
@@ -78,8 +88,9 @@ world.addBody(floorBody)
 // 床（Three.js用）
 const floorGeometry = new THREE.BoxGeometry(200, 0.2, 150)
 const floorMaterial = new THREE.MeshStandardMaterial({
+  map: textureSandstone,
   color: 0xffe4b5,
-  roughness: 0.7,
+  roughness: 1.0,
   metalness: 0,
 })
 const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial)
@@ -118,12 +129,11 @@ function createText(text, positionX, positionY, positionZ) {
     })
 
     // テキストのメッシュ
-    const textureLoader = new THREE.TextureLoader()
     const texture = textureLoader.load('/concrete_wall.jpg')
     texture.encoding = THREE.sRGBEncoding
     texture.wrapS = THREE.RepeatWrapping
     texture.wrapT = THREE.RepeatWrapping
-    texture.repeat.set(0.01, 0.01) // 数字を増やすほど細かくタイルされる
+    texture.repeat.set(0.01, 0.01)
 
     const textMaterial = new THREE.MeshStandardMaterial({
       map: texture,
@@ -183,7 +193,7 @@ function onWindowResize() {
 // レスポンシブ
 function updateCamera() {
   if(window.innerWidth < 768) {
-    camera.position.set(20, 10, 40)
+    camera.position.set(25, 10, 50)
     camera.rotation.set(0, 0.2, 0)
     camera.fov = 75
   } else {
