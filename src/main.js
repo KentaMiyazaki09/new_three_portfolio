@@ -31,34 +31,66 @@ document.body.appendChild(renderer.domElement)
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.0)
 scene.add(ambientLight)
 
+// ライトのヘルパー
+const lightFolder = gui.addFolder('directionalLight')
+lightFolder.open()
+
 const directionalLight = new THREE.DirectionalLight(0xffffff, 2)
-directionalLight.position.set(15, 10, 11)
+directionalLight.position.set(8, 18, 23)
 directionalLight.target.position.set(15, 0, 0)
 directionalLight.castShadow = true
 scene.add(directionalLight)
 scene.add(directionalLight.target)
 
-const lightFolder = gui.addFolder('directionalLight')
-lightFolder.open()
 const lightSettings = {
   color: '#ffffff',
 }
-
 lightFolder.addColor(lightSettings, 'color').onChange(value => {
   directionalLight.color.set(value)
 })
+const lightPosition = {
+  x: directionalLight.position.x,
+  y: directionalLight.position.y,
+  z: directionalLight.position.z,
+}
+lightFolder.add(lightPosition, 'x', -50, 50).onChange(() => {
+  directionalLight.position.x = lightPosition.x
+})
+lightFolder.add(lightPosition, 'y', 0, 50).onChange(() => {
+  directionalLight.position.y = lightPosition.y
+})
+lightFolder.add(lightPosition, 'z', -50, 50).onChange(() => {
+  directionalLight.position.z = lightPosition.z
+})
 
 // 影の範囲を広げる
-directionalLight.shadow.camera.left = -20;
-directionalLight.shadow.camera.right = 20;
-directionalLight.shadow.camera.top = 20;
-directionalLight.shadow.camera.bottom = -20;
-directionalLight.shadow.camera.near = 0.5;
+directionalLight.shadow.camera.left = -100;
+directionalLight.shadow.camera.right = 100;
+directionalLight.shadow.camera.top = 100;
+directionalLight.shadow.camera.bottom = -50;
+directionalLight.shadow.camera.near = 1;
 directionalLight.shadow.camera.far = 100;
-directionalLight.shadow.bias = -0.0001;
+directionalLight.shadow.bias = -0.01;
 
-// const lightHelper = new THREE.DirectionalLightHelper(directionalLight, 5)
+//ライトヘルパー
+const lightHelper = new THREE.DirectionalLightHelper(directionalLight, 5)
 // scene.add(lightHelper)
+
+const helperControls = {
+  showHelper: false,
+}
+lightFolder.add(helperControls, 'showHelper').onChange((value) => {
+  if (value) {
+    if (!scene.children.includes(lightHelper)) {
+      scene.add(lightHelper)
+    }
+  } else {
+    if (scene.children.includes(lightHelper)) {
+      scene.remove(lightHelper)
+    }
+  }
+})
+
 
 // 背景の壁
 const bgGeometry = new THREE.PlaneGeometry(200, 200)
@@ -150,7 +182,7 @@ function createText(text, positionX, positionY, positionZ) {
   
     // Cannon.js用のボディ
     const textBody = new Body({
-      mass: 0.1,
+      mass: 0.02,
       shape: new Box(new Vec3(1.5, 1.5, 0.5)),
       position: new Vec3(positionX, positionY, positionZ),
     })
@@ -204,7 +236,7 @@ function updateCamera() {
 }
 
 // 関数の実行
-createText('Portforio', 0, 10, 0)
+createText('Portforio', 0, 50, 0)
 animate()
 updateCamera()
 onWindowResize()
