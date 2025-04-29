@@ -11,9 +11,9 @@ const gui = new dat.GUI()
 // シーン、カメラ、レンダラーの作成
 const scene = new THREE.Scene()
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-camera.rotation.set(0, 0, 0)
 
 const renderer = new THREE.WebGLRenderer()
+renderer.outputEncoding = THREE.sRGBEncoding
 renderer.shadowMap.enabled = true
 renderer.shadowMap.autoUpdate = true
 document.body.appendChild(renderer.domElement)
@@ -108,21 +108,29 @@ function createText(text, positionX, positionY, positionZ) {
   fontLoader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', (font) => {
     const textGeometry = new TextGeometry(text, {
       font: font,
-      size: 2.5,
-      depth: 0.1,
+      size: 5,
+      depth: 1,
       bevelEnabled: true,
       curveSegments: 15,  // 曲線の滑らかさ（増やすとギザギザが減る）
-      bevelThickness: 0.7,
+      bevelThickness: 1,
       bevelSize: 0.2,
       bevelSegment: 15, //解像度
     })
 
-    // テキストの質感: やわらかい
+    // テキストのメッシュ
+    const textureLoader = new THREE.TextureLoader()
+    const texture = textureLoader.load('/concrete_wall.jpg')
+    texture.encoding = THREE.sRGBEncoding
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    texture.repeat.set(0.01, 0.01) // 数字を増やすほど細かくタイルされる
+
     const textMaterial = new THREE.MeshStandardMaterial({
+      map: texture,
       color: 0xffffff,
-      roughness: 0.5,
-      metalness: 0.1,
-      flatShading: false
+      roughness: 1.0,
+      metalness: 0.0,
+      flatShading: false,
     })
     const textMesh = new THREE.Mesh(textGeometry, textMaterial)
     textMesh.position.set(positionX, positionY, positionZ)
@@ -175,17 +183,18 @@ function onWindowResize() {
 // レスポンシブ
 function updateCamera() {
   if(window.innerWidth < 768) {
-    camera.position.set(15, 10, 60)
+    camera.position.set(20, 10, 40)
+    camera.rotation.set(0, 0.2, 0)
     camera.fov = 75
   } else {
-    camera.position.set(15, 10, 40)
+    camera.position.set(20, 10, 40)
+    camera.rotation.set(0, 0.2, 0)
     camera.fov = 60
   }
 }
 
-
 // 関数の実行
-createText('k.miyazaki Portfolio', 0, 20, 0)
+createText('Portforio', 0, 10, 0)
 animate()
 updateCamera()
 onWindowResize()
