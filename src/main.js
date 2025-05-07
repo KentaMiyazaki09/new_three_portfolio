@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { FontLoader } from 'three/examples/jsm/Addons.js'
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
 import { World, Body, Box, Vec3, Material, ContactMaterial } from 'cannon-es'
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
 
 // dat gui
 import * as dat from 'dat.gui'
@@ -11,11 +12,12 @@ const gui = new dat.GUI()
 // テクスチャローダー
 const textureLoader = new THREE.TextureLoader()
 
-const textureSandstone = textureLoader.load('/red_sandstone_wall.jpg')
-textureSandstone.encoding = THREE.sRGBEncoding
-textureSandstone.wrapS = THREE.RepeatWrapping
-textureSandstone.wrapT = THREE.RepeatWrapping
-textureSandstone.repeat.set(1, 1)
+const texture = textureLoader.load('/brick_wall_001_diffuse_4k.jpg')
+const normal = textureLoader.load('/brick_wall_001_nor_gl_4k.jpg')
+texture.encoding = THREE.sRGBEncoding
+texture.wrapS = THREE.RepeatWrapping
+texture.wrapT = THREE.RepeatWrapping
+texture.repeat.set(1, 1)
 
 // シーン、カメラ、レンダラーの作成
 const scene = new THREE.Scene()
@@ -27,6 +29,15 @@ renderer.shadowMap.enabled = true
 renderer.shadowMap.autoUpdate = true
 document.body.appendChild(renderer.domElement)
 
+// HDRI
+const rgbeLoader = new RGBELoader()
+rgbeLoader.load('/minedump_flats_4k.hdr', function(textture) {
+  textture.mapping = THREE.EquirectangularReflectionMapping
+
+  scene.environment = textture
+  scene.background = textture
+})
+
 // ライトの設置
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.0)
 scene.add(ambientLight)
@@ -35,8 +46,8 @@ scene.add(ambientLight)
 const lightFolder = gui.addFolder('directionalLight')
 lightFolder.open()
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 2)
-directionalLight.position.set(8, 18, 23)
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
+directionalLight.position.set(-1, 12, 9)
 directionalLight.target.position.set(15, 0, 0)
 directionalLight.castShadow = true
 scene.add(directionalLight)
@@ -61,6 +72,13 @@ lightFolder.add(lightPosition, 'y', 0, 50).onChange(() => {
 })
 lightFolder.add(lightPosition, 'z', -50, 50).onChange(() => {
   directionalLight.position.z = lightPosition.z
+})
+
+const lightIntensity = {
+  intensity: directionalLight.intensity,
+}
+lightFolder.add(lightIntensity, 'intensity', -10, 10).onChange(() => {
+  directionalLight.intensity = lightIntensity.intensity
 })
 
 // 影の範囲を広げる
@@ -95,7 +113,8 @@ lightFolder.add(helperControls, 'showHelper').onChange((value) => {
 // 背景の壁
 const bgGeometry = new THREE.PlaneGeometry(200, 200)
 const beMaterial = new THREE.MeshStandardMaterial({
-  map: textureSandstone,
+  normalMap: normal,
+  map: texture,
   color: 0xffe4b5,
   roughness: 1.0,
   metalness: 0.0,
@@ -120,7 +139,8 @@ world.addBody(floorBody)
 // 床（Three.js用）
 const floorGeometry = new THREE.BoxGeometry(200, 0.2, 150)
 const floorMaterial = new THREE.MeshStandardMaterial({
-  map: textureSandstone,
+  normalMap: normal,
+  map: texture,
   color: 0xffe4b5,
   roughness: 1.0,
   metalness: 0,
@@ -161,18 +181,23 @@ function createText(text, positionX, positionY, positionZ) {
     })
 
     // テキストのメッシュ
-    const texture = textureLoader.load('/concrete_wall.jpg')
-    texture.encoding = THREE.sRGBEncoding
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.RepeatWrapping
-    texture.repeat.set(0.01, 0.01)
+    const textTexture = textureLoader.load('/metal_plate_02_metal_4k.jpg')
+    const textNormal = textureLoader.load('/metal_plate_02_nor_gl_4k.jpg')
+    const textRough = textureLoader.load('/metal_plate_02_rough_4k.jpg')
+    textTexture.encoding = THREE.sRGBEncoding
+    textTexture.wrapS = THREE.RepeatWrapping
+    textTexture.wrapT = THREE.RepeatWrapping
+    textTexture.repeat.set(0.001, 0.001)
 
     const textMaterial = new THREE.MeshStandardMaterial({
-      map: texture,
+      normalMap: textNormal,
+      metalnessMap: textTexture,
+      roughnessMap: textRough,
       color: 0xffffff,
-      roughness: 1.0,
-      metalness: 0.0,
+      roughness: 0.4,
+      metalness: 1.0,
       flatShading: false,
+      envMapIntensity: 0.3,
     })
     const textMesh = new THREE.Mesh(textGeometry, textMaterial)
     textMesh.position.set(positionX, positionY, positionZ)
@@ -229,14 +254,14 @@ function updateCamera() {
     camera.rotation.set(0, 0.2, 0)
     camera.fov = 75
   } else {
-    camera.position.set(20, 10, 40)
+    camera.position.set(18, 5, 30)
     camera.rotation.set(0, 0.2, 0)
     camera.fov = 60
   }
 }
 
 // 関数の実行
-createText('Portforio', 0, 50, 0)
+createText('Portforio', 0, 40, 5)
 animate()
 updateCamera()
 onWindowResize()
