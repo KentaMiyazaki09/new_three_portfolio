@@ -31,7 +31,7 @@ document.body.appendChild(renderer.domElement)
 
 // HDRI
 const rgbeLoader = new RGBELoader()
-rgbeLoader.load('/minedump_flats_4k.hdr', function(textture) {
+rgbeLoader.load('/rogland_clear_night_4k.hdr', function(textture) {
   textture.mapping = THREE.EquirectangularReflectionMapping
 
   scene.environment = textture
@@ -39,20 +39,15 @@ rgbeLoader.load('/minedump_flats_4k.hdr', function(textture) {
 })
 
 // ライトの設置
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.0)
-scene.add(ambientLight)
-
-// ライトのヘルパー
-const lightFolder = gui.addFolder('directionalLight')
-lightFolder.open()
-
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
-directionalLight.position.set(-1, 12, 9)
-directionalLight.target.position.set(15, 0, 0)
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
+directionalLight.position.set(100, 16, 24)
+directionalLight.target.position.set(5, 5, 0)
 directionalLight.castShadow = true
 scene.add(directionalLight)
 scene.add(directionalLight.target)
 
+const lightFolder = gui.addFolder('directionalLight')
+lightFolder.open()
 const lightSettings = {
   color: '#ffffff',
 }
@@ -64,13 +59,13 @@ const lightPosition = {
   y: directionalLight.position.y,
   z: directionalLight.position.z,
 }
-lightFolder.add(lightPosition, 'x', -50, 50).onChange(() => {
+lightFolder.add(lightPosition, 'x', -100, 100).onChange(() => {
   directionalLight.position.x = lightPosition.x
 })
-lightFolder.add(lightPosition, 'y', 0, 50).onChange(() => {
+lightFolder.add(lightPosition, 'y', -100, 100).onChange(() => {
   directionalLight.position.y = lightPosition.y
 })
-lightFolder.add(lightPosition, 'z', -50, 50).onChange(() => {
+lightFolder.add(lightPosition, 'z', -100, 100).onChange(() => {
   directionalLight.position.z = lightPosition.z
 })
 
@@ -82,13 +77,13 @@ lightFolder.add(lightIntensity, 'intensity', -10, 10).onChange(() => {
 })
 
 // 影の範囲を広げる
-directionalLight.shadow.camera.left = -100;
-directionalLight.shadow.camera.right = 100;
-directionalLight.shadow.camera.top = 100;
-directionalLight.shadow.camera.bottom = -50;
+directionalLight.shadow.camera.left = -200;
+directionalLight.shadow.camera.right = 300;
+directionalLight.shadow.camera.top = 200;
+directionalLight.shadow.camera.bottom = -100;
 directionalLight.shadow.camera.near = 1;
-directionalLight.shadow.camera.far = 100;
-directionalLight.shadow.bias = -0.01;
+directionalLight.shadow.camera.far = 200;
+directionalLight.shadow.bias = -0.002;
 
 //ライトヘルパー
 const lightHelper = new THREE.DirectionalLightHelper(directionalLight, 5)
@@ -109,13 +104,60 @@ lightFolder.add(helperControls, 'showHelper').onChange((value) => {
   }
 })
 
+// スポットライト
+const spotLight = new THREE.SpotLight(0xFFFFFF, 5, 100, Math.PI / 3, 0.5, 0.7)
+spotLight.position.set(25, -5, 38)
+spotLight.rotation.set(10, 0, 0)
+spotLight.castShadow = true
+scene.add(spotLight)
+
+//ライトヘルパー
+const spotLightFolder = gui.addFolder('spotLight')
+spotLightFolder.open()
+
+const spotLightHelper = new THREE.SpotLightHelper(spotLight, 10)
+// scene.add(spotLightHelper)
+
+const spotLightPosition = {
+  x: spotLight.position.x,
+  y: spotLight.position.y,
+  z: spotLight.position.z,
+}
+spotLightFolder.add(spotLightPosition, 'x', -100, 100).onChange(() => {
+  spotLight.position.x = spotLightPosition.x
+  spotLightHelper.update()
+})
+spotLightFolder.add(spotLightPosition, 'y', -100, 100).onChange(() => {
+  spotLight.position.y = spotLightPosition.y
+  spotLightHelper.update()
+})
+spotLightFolder.add(spotLightPosition, 'z', -100, 100).onChange(() => {
+  spotLight.position.z = spotLightPosition.z
+  spotLightHelper.update()
+})
+
+const spotLighthelperControls = {
+  showHelper: false,
+}
+spotLightFolder.add(spotLighthelperControls, 'showHelper').onChange((value) => {
+  if (value) {
+    if (!scene.children.includes(spotLightHelper)) {
+      scene.add(spotLightHelper)
+    }
+  } else {
+    if (scene.children.includes(spotLightHelper)) {
+      scene.remove(spotLightHelper)
+    }
+  }
+})
+
 
 // 背景の壁
 const bgGeometry = new THREE.PlaneGeometry(200, 200)
 const beMaterial = new THREE.MeshStandardMaterial({
   normalMap: normal,
   map: texture,
-  color: 0xffe4b5,
+  color: 0xf6f6f6,
   roughness: 1.0,
   metalness: 0.0,
 })
@@ -131,7 +173,7 @@ world.gravity.set(0, -9.82, 0) // 重力を下向きに設定
 // 床（物理エンジン用）
 const floorBody = new Body({
   type: Body.STATIC,
-  shape: new Box(new Vec3(5, 0.1, 5)),
+  shape: new Box(new Vec3(200, 0.2, 150)),
   position: new Vec3(0, -2, 0),
 })
 world.addBody(floorBody)
@@ -141,7 +183,7 @@ const floorGeometry = new THREE.BoxGeometry(200, 0.2, 150)
 const floorMaterial = new THREE.MeshStandardMaterial({
   normalMap: normal,
   map: texture,
-  color: 0xffe4b5,
+  color: 0xffffff,
   roughness: 1.0,
   metalness: 0,
 })
@@ -171,9 +213,8 @@ function createText(text, positionX, positionY, positionZ) {
   fontLoader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', (font) => {
     const textGeometry = new TextGeometry(text, {
       font: font,
-      size: 5,
-      depth: 1,
-      bevelEnabled: true,
+      size: 3,
+      depth: 2,
       curveSegments: 15,  // 曲線の滑らかさ（増やすとギザギザが減る）
       bevelThickness: 1,
       bevelSize: 0.2,
@@ -181,7 +222,8 @@ function createText(text, positionX, positionY, positionZ) {
     })
 
     // テキストのメッシュ
-    const textTexture = textureLoader.load('/metal_plate_02_metal_4k.jpg')
+    const textTexture = textureLoader.load('/metal_plate_02_diff_4k.jpg')
+    const textTextureMetal = textureLoader.load('/metal_plate_02_metal_4k.jpg')
     const textNormal = textureLoader.load('/metal_plate_02_nor_gl_4k.jpg')
     const textRough = textureLoader.load('/metal_plate_02_rough_4k.jpg')
     textTexture.encoding = THREE.sRGBEncoding
@@ -190,14 +232,14 @@ function createText(text, positionX, positionY, positionZ) {
     textTexture.repeat.set(0.001, 0.001)
 
     const textMaterial = new THREE.MeshStandardMaterial({
+      map: textTexture,
       normalMap: textNormal,
-      metalnessMap: textTexture,
+      metalnessMap: textTextureMetal,
       roughnessMap: textRough,
       color: 0xffffff,
-      roughness: 0.4,
-      metalness: 1.0,
-      flatShading: false,
-      envMapIntensity: 0.3,
+      roughness: 0.3,
+      metalness: 1,
+      envMapIntensity: 1,
     })
     const textMesh = new THREE.Mesh(textGeometry, textMaterial)
     textMesh.position.set(positionX, positionY, positionZ)
@@ -225,6 +267,7 @@ function createText(text, positionX, positionY, positionZ) {
 }
 
 // アニメーションループ
+const clock = new THREE.Clock()
 function animate() {
   world.step(1 / 60)
 
@@ -233,6 +276,16 @@ function animate() {
     textMeshes[index].position.copy(body.position)
     textMeshes[index].quaternion.copy(body.quaternion)
   })
+
+  // スポットライトの移動
+  const elapsed = clock.getElapsedTime()
+  if(elapsed > 10) {
+    const t = elapsed - 10
+    spotLight.position.x = Math.cos(t * 0.25) * 25
+    spotLightHelper.update()
+
+    directionalLight.position.x = Math.cos(t * 0.25) * 100
+  }
 
   renderer.render(scene, camera)
   requestAnimationFrame(animate)
@@ -250,18 +303,18 @@ function onWindowResize() {
 // レスポンシブ
 function updateCamera() {
   if(window.innerWidth < 768) {
-    camera.position.set(25, 10, 50)
+    camera.position.set(11.5, 5, 35)
     camera.rotation.set(0, 0.2, 0)
     camera.fov = 75
   } else {
-    camera.position.set(18, 5, 30)
+    camera.position.set(11.5, 5, 30)
     camera.rotation.set(0, 0.2, 0)
     camera.fov = 60
   }
 }
 
 // 関数の実行
-createText('Portforio', 0, 40, 5)
+createText('Portforio', 0, 20, 10)
 animate()
 updateCamera()
 onWindowResize()
