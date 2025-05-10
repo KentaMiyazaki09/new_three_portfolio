@@ -5,6 +5,9 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
 import { World, Body, Box, Vec3, Material, ContactMaterial } from 'cannon-es'
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
 
+// import spotLight from './modules/spotLight'
+import directionalLight from './modules/directionalLight'
+
 // dat gui
 import * as dat from 'dat.gui'
 const gui = new dat.GUI()
@@ -17,7 +20,12 @@ const normal = textureLoader.load('/brick_wall_001_nor_gl_4k.jpg')
 texture.encoding = THREE.sRGBEncoding
 texture.wrapS = THREE.RepeatWrapping
 texture.wrapT = THREE.RepeatWrapping
-texture.repeat.set(1, 1)
+texture.repeat.set(2, 2)
+
+normal.encoding = THREE.sRGBEncoding
+normal.wrapS = THREE.RepeatWrapping
+normal.wrapT = THREE.RepeatWrapping
+normal.repeat.set(2, 2)
 
 // シーン、カメラ、レンダラーの作成
 const scene = new THREE.Scene()
@@ -39,118 +47,9 @@ rgbeLoader.load('/rogland_clear_night_4k.hdr', function(textture) {
 })
 
 // ライトの設置
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
-directionalLight.position.set(100, 16, 24)
-directionalLight.target.position.set(5, 5, 0)
-directionalLight.castShadow = true
-scene.add(directionalLight)
-scene.add(directionalLight.target)
-
-const lightFolder = gui.addFolder('directionalLight')
-lightFolder.open()
-const lightSettings = {
-  color: '#ffffff',
-}
-lightFolder.addColor(lightSettings, 'color').onChange(value => {
-  directionalLight.color.set(value)
-})
-const lightPosition = {
-  x: directionalLight.position.x,
-  y: directionalLight.position.y,
-  z: directionalLight.position.z,
-}
-lightFolder.add(lightPosition, 'x', -100, 100).onChange(() => {
-  directionalLight.position.x = lightPosition.x
-})
-lightFolder.add(lightPosition, 'y', -100, 100).onChange(() => {
-  directionalLight.position.y = lightPosition.y
-})
-lightFolder.add(lightPosition, 'z', -100, 100).onChange(() => {
-  directionalLight.position.z = lightPosition.z
-})
-
-const lightIntensity = {
-  intensity: directionalLight.intensity,
-}
-lightFolder.add(lightIntensity, 'intensity', -10, 10).onChange(() => {
-  directionalLight.intensity = lightIntensity.intensity
-})
-
-// 影の範囲を広げる
-directionalLight.shadow.camera.left = -200;
-directionalLight.shadow.camera.right = 300;
-directionalLight.shadow.camera.top = 200;
-directionalLight.shadow.camera.bottom = -100;
-directionalLight.shadow.camera.near = 1;
-directionalLight.shadow.camera.far = 200;
-directionalLight.shadow.bias = -0.002;
-
-//ライトヘルパー
-const lightHelper = new THREE.DirectionalLightHelper(directionalLight, 5)
-// scene.add(lightHelper)
-
-const helperControls = {
-  showHelper: false,
-}
-lightFolder.add(helperControls, 'showHelper').onChange((value) => {
-  if (value) {
-    if (!scene.children.includes(lightHelper)) {
-      scene.add(lightHelper)
-    }
-  } else {
-    if (scene.children.includes(lightHelper)) {
-      scene.remove(lightHelper)
-    }
-  }
-})
-
-// スポットライト
-const spotLight = new THREE.SpotLight(0xFFFFFF, 5, 100, Math.PI / 3, 0.5, 0.7)
-spotLight.position.set(25, -5, 38)
-spotLight.rotation.set(10, 0, 0)
-spotLight.castShadow = true
-scene.add(spotLight)
-
-//ライトヘルパー
-const spotLightFolder = gui.addFolder('spotLight')
-spotLightFolder.open()
-
-const spotLightHelper = new THREE.SpotLightHelper(spotLight, 10)
-// scene.add(spotLightHelper)
-
-const spotLightPosition = {
-  x: spotLight.position.x,
-  y: spotLight.position.y,
-  z: spotLight.position.z,
-}
-spotLightFolder.add(spotLightPosition, 'x', -100, 100).onChange(() => {
-  spotLight.position.x = spotLightPosition.x
-  spotLightHelper.update()
-})
-spotLightFolder.add(spotLightPosition, 'y', -100, 100).onChange(() => {
-  spotLight.position.y = spotLightPosition.y
-  spotLightHelper.update()
-})
-spotLightFolder.add(spotLightPosition, 'z', -100, 100).onChange(() => {
-  spotLight.position.z = spotLightPosition.z
-  spotLightHelper.update()
-})
-
-const spotLighthelperControls = {
-  showHelper: false,
-}
-spotLightFolder.add(spotLighthelperControls, 'showHelper').onChange((value) => {
-  if (value) {
-    if (!scene.children.includes(spotLightHelper)) {
-      scene.add(spotLightHelper)
-    }
-  } else {
-    if (scene.children.includes(spotLightHelper)) {
-      scene.remove(spotLightHelper)
-    }
-  }
-})
-
+// spotLight(scene)
+const dLightPosX = -10
+const dLight = directionalLight(scene, dLightPosX, gui)
 
 // 背景の壁
 const bgGeometry = new THREE.PlaneGeometry(200, 200)
@@ -160,6 +59,7 @@ const beMaterial = new THREE.MeshStandardMaterial({
   color: 0xf6f6f6,
   roughness: 1.0,
   metalness: 0.0,
+  envMapIntensity: 1,
 })
 const bgPlane = new THREE.Mesh(bgGeometry, beMaterial)
 bgPlane.position.set(15, 0, -10)
@@ -186,6 +86,7 @@ const floorMaterial = new THREE.MeshStandardMaterial({
   color: 0xffffff,
   roughness: 1.0,
   metalness: 0,
+  envMapIntensity: 1,
 })
 const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial)
 floorMesh.position.y = -2
@@ -277,14 +178,11 @@ function animate() {
     textMeshes[index].quaternion.copy(body.quaternion)
   })
 
-  // スポットライトの移動
+  // ライトの移動
   const elapsed = clock.getElapsedTime()
   if(elapsed > 10) {
     const t = elapsed - 10
-    spotLight.position.x = Math.cos(t * 0.25) * 25
-    spotLightHelper.update()
-
-    directionalLight.position.x = Math.cos(t * 0.25) * 100
+    dLight.position.x = Math.cos(t * 0.25) * dLightPosX
   }
 
   renderer.render(scene, camera)
