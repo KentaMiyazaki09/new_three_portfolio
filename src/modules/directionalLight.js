@@ -1,6 +1,14 @@
 import * as THREE from 'three'
 
-function initDirectionallight(scene, dLightPosX, gui) {
+/**
+ * directionalLightをsceneに追加
+ * @param { Object } scene
+ * @param { Number } dLightPosX ライトのX座標
+ * @param { Object } gui dut.gui
+ * @return { Object } directionalLight ライト本体
+ */
+
+export default (scene, dLightPosX, gui) => {
   const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
   directionalLight.position.set(dLightPosX, -3, 24)
   directionalLight.castShadow = true
@@ -67,5 +75,3 @@ function initDirectionallight(scene, dLightPosX, gui) {
 
   return directionalLight
 }
-
-export default ((scene, dLightPosX, gui) => initDirectionallight(scene, dLightPosX, gui))
