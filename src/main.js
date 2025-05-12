@@ -10,11 +10,16 @@ import floor from './modules/floor'
 
 import textGeo from './modules/textGeo'
 
+import friedEgg from './modules/model_fired_egg'
+
 /* dat gui */
 import * as dat from 'dat.gui'
 const gui = new dat.GUI()
 
 import resize from './functions/resize'
+
+import { GLTFLoader } from "three/examples/jsm/Addons.js"
+const gltfLoader = new GLTFLoader()
 
 /* シーン、カメラ、レンダラー */
 const scene = new THREE.Scene()
@@ -43,6 +48,9 @@ const { world, textCannonMaterial } = floor(textureLoader, scene)
 
 /* テキストジオメトリを追加 */
 const  { textMeshes, textBodies } = textGeo('Portforio', textureLoader, 0, 20, 10, scene, world, textCannonMaterial)
+
+/* 3Dモデル */
+friedEgg(gltfLoader, scene, renderer)
 
 /* アニメーション */
 const clock = new THREE.Clock()
