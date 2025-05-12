@@ -36,9 +36,8 @@ HDRI(scene)
 
 /* ライト */
 // spotLight(scene)
-const dLightPosX = -10
+const dLightPosX = -15
 const dLight = directionalLight(scene, dLightPosX, gui)
-
 
 /* テクスチャローダー */
 const textureLoader = new THREE.TextureLoader()
@@ -47,10 +46,10 @@ const textureLoader = new THREE.TextureLoader()
 const { world, textCannonMaterial } = floor(textureLoader, scene)
 
 /* テキストジオメトリを追加 */
-const  { textMeshes, textBodies } = textGeo('Portforio', textureLoader, 0, 20, 10, scene, world, textCannonMaterial)
+const  { textMeshes, textBodies } = textGeo('WELCOME', textureLoader, -3.2, 20, 10, scene, world, textCannonMaterial)
 
 /* 3Dモデル */
-friedEgg(gltfLoader, scene, renderer)
+friedEgg(gltfLoader, scene)
 
 /* アニメーション */
 const clock = new THREE.Clock()
@@ -65,8 +64,8 @@ function animate() {
 
   // ライトの移動
   const elapsed = clock.getElapsedTime()
-  if(elapsed > 10) {
-    const t = elapsed - 10
+  if(elapsed > dLightPosX) {
+    const t = elapsed - dLightPosX
     dLight.position.x = Math.cos(t * 0.25) * dLightPosX
   }
 
