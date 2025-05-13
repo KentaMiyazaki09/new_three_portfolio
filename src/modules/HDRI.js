@@ -3,7 +3,7 @@ import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
 
 /**
  * HDRIをsceneに追加
- * @param { Object } scene
+ * @param { Object } scene THREE.Scene()
  */
 export default (scene) => {
   return new Promise((resolve, reject) => {

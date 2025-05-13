@@ -3,8 +3,8 @@ import * as THREE from 'three'
 
 import HDRI from './modules/HDRI'
 
-// import spotLight from './modules/spotLight'
 import directionalLight from './modules/directionalLight'
+import toggleChasingLightBtn from './modules/toggleChasingLightBtn'
 
 import floor from './modules/floor'
 
@@ -32,7 +32,12 @@ renderer.shadowMap.autoUpdate = true
 document.body.appendChild(renderer.domElement)
 
 /* ライト */
-directionalLight('text', true, scene, -7, -0.5, 25, gui) // text
+// テキストライト
+const textLight = directionalLight('text', true, scene, -7, -0.5, 25, gui) // text
+// マウス追従
+const targetLightPosition = toggleChasingLightBtn(textLight)
+
+// fried_eggライト
 directionalLight('egg', false, scene, -1, 22, 34, gui) // egg
 
 /*
@@ -62,6 +67,9 @@ HDRI(scene).then(() => {
           textMeshes[index].position.copy(body.position)
           textMeshes[index].quaternion.copy(body.quaternion)
         })
+
+        // テキストライトをスムーズに追従させる
+        textLight.position.lerp(targetLightPosition, 0.1)
 
         renderer.render(scene, camera)
         requestAnimationFrame(animate)

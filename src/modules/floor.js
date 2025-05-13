@@ -3,10 +3,10 @@ import { World, Body, Box, Vec3, Material, ContactMaterial, SAPBroadphase } from
 
 /**
  * sceneに物理エンジン搭載の床を設置
- * @param { Object } textureLoader THREE.TextureLoader
- * @param { Object } scene
- * @returns { Object } world cannon-es World
- * @returns { Object } textCannonMaterial cannon-es Material
+ * @param { Object } textureLoader THREE.TextureLoader()
+ * @param { Object } scene  THREE.Scene()
+ * @return { Object } world cannon-es.World()
+ * @return { Object } textCannonMaterial cannon-es.Material()
  */
 
 export default (textureLoader, scene) => {
@@ -19,7 +19,7 @@ export default (textureLoader, scene) => {
   map.wrapT = THREE.RepeatWrapping
   map.repeat.set(2, 2)
 
-   const normalMap = textureLoader.load('/brick_wall_001_nor_gl_4k.jpg')
+  const normalMap = textureLoader.load('/brick_wall_001_nor_gl_4k.jpg')
   normalMap.wrapS = THREE.RepeatWrapping
   normalMap.wrapT = THREE.RepeatWrapping
   normalMap.repeat.set(2, 2)
@@ -27,7 +27,7 @@ export default (textureLoader, scene) => {
   /*
    * 壁
    */
-   const bgGeometry = new THREE.PlaneGeometry(200, 200)
+  const bgGeometry = new THREE.PlaneGeometry(200, 200)
   const beMaterial = new THREE.MeshStandardMaterial({
     map: map,
     normalMap: normalMap,

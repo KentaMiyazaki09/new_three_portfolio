@@ -1,6 +1,6 @@
 /**
- * @param { Object } camera THREE.PerspectiveCamera
- * @param { Object } renderer THREE.WebGLRenderer
+ * @param { Object } camera THREE.PerspectiveCamera()
+ * @param { Object } renderer THREE.WebGLRenderer()
  */
 export default (camera, renderer) => {
   if(window.innerWidth < 768) {

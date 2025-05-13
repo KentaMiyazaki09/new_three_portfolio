@@ -10,13 +10,13 @@ const textMeshes = []
 /**
  * テキストモデルを生成
  * @param { String } text 図形にしたいテキスト
- * @param { Object } textureLoader
+ * @param { Object } textureLoader THREE.TextureLoader()
  * @param { Number } positionX
  * @param { Number } positionY
  * @param { Number } positionZ
- * @param { Object } scene
- * @param { Object } world cannon-es World
- * @param { Object } textCannonMaterial cannon-es Material
+ * @param { Object } scene Three.scene()
+ * @param { Object } world cannon-es.World()
+ * @param { Object } textCannonMaterial cannon-es.Material()
  * @returns { Array } textMeshes テキストモデルの一覧
  * @returns { Array } textBodies Cannon.js用のテキストモデルの一覧
  */

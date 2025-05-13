@@ -2,10 +2,14 @@ import * as THREE from 'three'
 
 /**
  * directionalLightをsceneに追加
- * @param { Object } scene
- * @param { Number } dLightPosX ライトのX座標
- * @param { Object } gui dut.gui
- * @return { Object } directionalLight ライト本体
+ * @param { String } name ライトの名前
+ * @param { booliean } shadowActive ライトの影描画on/off
+ * @param { Object } scene THREE.Scene()
+ * @param { number } posX
+ * @param { number } posY
+ * @param { number } posZ
+ * @param { Object } gui dut.gui()
+ * @return { Object } directionalLight
  */
 
 function createLight(name, shadowActive, scene, posX, posY, posZ, gui) {
@@ -62,8 +66,10 @@ function createLight(name, shadowActive, scene, posX, posY, posZ, gui) {
       }
     }
   })
+
+  return directionalLight
 }
 
 export default (name, shadowActive, scene, posX, posY, posZ, gui) => {
-  createLight(name, shadowActive, scene, posX, posY, posZ, gui)
+  return createLight(name, shadowActive, scene, posX, posY, posZ, gui)
 }
