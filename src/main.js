@@ -31,52 +31,48 @@ renderer.shadowMap.enabled = true
 renderer.shadowMap.autoUpdate = true
 document.body.appendChild(renderer.domElement)
 
-/* HDRI */
-HDRI(scene)
-
 /* ライト */
-// spotLight(scene)
-const dLightPosX = -15
-const dLight = directionalLight(scene, dLightPosX, gui)
+directionalLight('text', true, scene, -7, -0.5, 25, gui) // text
+directionalLight('egg', false, scene, -1, 22, 34, gui) // egg
 
-/* テクスチャローダー */
-const textureLoader = new THREE.TextureLoader()
+/*
+ * HDRI
+ */
+HDRI(scene).then(() => {
+  /* テクスチャローダー */
+  const textureLoader = new THREE.TextureLoader()
 
-/* 物理演算ワールドを作成 */
-const { world, textCannonMaterial } = floor(textureLoader, scene)
+  /* 物理演算ワールドを作成 */
+  const { world, textCannonMaterial } = floor(textureLoader, scene)
 
-/* テキストジオメトリを追加 */
-const  { textMeshes, textBodies } = textGeo('WELCOME', textureLoader, -3.2, 20, 10, scene, world, textCannonMaterial)
+  /* 3Dモデル */
+  friedEgg(gltfLoader, scene)
 
-/* 3Dモデル */
-friedEgg(gltfLoader, scene)
+  /* テキストジオメトリを追加 */
+  textGeo('WELCOME', textureLoader, -1.5, 20, 10, scene, world, textCannonMaterial)
+    .then(({ textMeshes, textBodies }) => {
 
-/* アニメーション */
-const clock = new THREE.Clock()
-function animate() {
-  world.step(1 / 60)
+      /* アニメーション */
+      // const clock = new THREE.Clock()
+      function animate() {
+        world.step(1 / 60)
 
-  // Cannon.jsのボディ位置をThree.jsのメッシュに反映
-  textBodies.forEach((body, index) => {
-    textMeshes[index].position.copy(body.position)
-    textMeshes[index].quaternion.copy(body.quaternion)
-  })
+        // Cannon.jsのボディ位置をThree.jsのメッシュに反映
+        textBodies.forEach((body, index) => {
+          textMeshes[index].position.copy(body.position)
+          textMeshes[index].quaternion.copy(body.quaternion)
+        })
 
-  // ライトの移動
-  const elapsed = clock.getElapsedTime()
-  if(elapsed > dLightPosX) {
-    const t = elapsed - dLightPosX
-    dLight.position.x = Math.cos(t * 0.25) * dLightPosX
-  }
+        renderer.render(scene, camera)
+        requestAnimationFrame(animate)
+      }
 
-  renderer.render(scene, camera)
-  requestAnimationFrame(animate)
-}
+      /* init */
+      animate()
+      resize(camera, renderer)
 
-/* init */
-animate()
-resize(camera, renderer)
-
-window.addEventListener('resize', () => {
-  resize(camera, renderer)
+      window.addEventListener('resize', () => {
+        resize(camera, renderer)
+      })
+    })
 })

@@ -8,30 +8,30 @@ import * as THREE from 'three'
  * @return { Object } directionalLight ライト本体
  */
 
-export default (scene, dLightPosX, gui) => {
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
-  directionalLight.position.set(dLightPosX, -3, 24)
-  directionalLight.castShadow = true
+function createLight(name, shadowActive, scene, posX, posY, posZ, gui) {
+  const directionalLight = new THREE.DirectionalLight('#fff1c1', 1)
+  directionalLight.position.set(posX, posY, posZ)
+
+  /* 影の描画 */
+  if(shadowActive) {
+    directionalLight.castShadow = true
+
+    // 範囲を広げる
+    directionalLight.shadow.mapSize.width = 2048
+    directionalLight.shadow.mapSize.height = 2048
+    directionalLight.shadow.camera.left = -100;
+    directionalLight.shadow.camera.right = 100;
+    directionalLight.shadow.camera.top = 100;
+    directionalLight.shadow.camera.bottom = -100;
+    directionalLight.shadow.camera.near = 1;
+    directionalLight.shadow.camera.far = 200;
+    directionalLight.shadow.bias = -0.002;
+  }
+
   scene.add(directionalLight)
 
-  // // 影の範囲を広げる
-  directionalLight.shadow.camera.left = -100;
-  directionalLight.shadow.camera.right = 100;
-  directionalLight.shadow.camera.top = 100;
-  directionalLight.shadow.camera.bottom = -100;
-  directionalLight.shadow.camera.near = 1;
-  directionalLight.shadow.camera.far = 200;
-  directionalLight.shadow.bias = -0.002;
-
-  // ヘルパー
-  const lightFolder = gui.addFolder('directionalLight')
+  const lightFolder = gui.addFolder(`${name} textLight`)
   lightFolder.open()
-  const lightSettings = {
-    color: '#ffffff',
-  }
-  lightFolder.addColor(lightSettings, 'color').onChange(value => {
-    directionalLight.color.set(value)
-  })
   const lightPosition = {
     x: directionalLight.position.x,
     y: directionalLight.position.y,
@@ -47,31 +47,23 @@ export default (scene, dLightPosX, gui) => {
     directionalLight.position.z = lightPosition.z
   })
 
-  const lightIntensity = {
-    intensity: directionalLight.intensity,
-  }
-  lightFolder.add(lightIntensity, 'intensity', -10, 10).onChange(() => {
-    directionalLight.intensity = lightIntensity.intensity
-  })
-
-  //ライトヘルパー
-  const lightHelper = new THREE.DirectionalLightHelper(directionalLight, 5)
-  // scene.add(lightHelper)
-
+  const helper = new THREE.DirectionalLightHelper(directionalLight)
   const helperControls = {
     showHelper: false,
   }
   lightFolder.add(helperControls, 'showHelper').onChange((value) => {
     if (value) {
-      if (!scene.children.includes(lightHelper)) {
-        scene.add(lightHelper)
+      if (!scene.children.includes(helper)) {
+        scene.add(helper)
       }
     } else {
-      if (scene.children.includes(lightHelper)) {
-        scene.remove(lightHelper)
+      if (scene.children.includes(helper)) {
+        scene.remove(helper)
       }
     }
   })
+}
 
-  return directionalLight
+export default (name, shadowActive, scene, posX, posY, posZ, gui) => {
+  createLight(name, shadowActive, scene, posX, posY, posZ, gui)
 }

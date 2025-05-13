@@ -11,7 +11,6 @@ export default (loader, scene) => {
     model.scale.set(9, 9, 9)
     model.traverse(child => {
       if(child.isMesh) {
-        child.geometry.computeVertexNormals()
         child.castShadow = true
         child.receiveShadow = true
       }

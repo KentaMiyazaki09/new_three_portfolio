@@ -6,11 +6,16 @@ import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
  * @param { Object } scene
  */
 export default (scene) => {
-  const rgbeLoader = new RGBELoader()
-  rgbeLoader.load('/rogland_clear_night_4k.hdr', function(textture) {
-    textture.mapping = THREE.EquirectangularReflectionMapping
-  
-    scene.environment = textture
-    scene.background = textture
+  return new Promise((resolve, reject) => {
+    const rgbeLoader = new RGBELoader()
+    rgbeLoader.load('/rogland_clear_night_4k.hdr', function(texture) {
+      texture.mapping = THREE.EquirectangularReflectionMapping
+    
+      scene.environment = texture
+      scene.background = null
+      resolve()
+    }, undefined, (err) => {
+      reject(err)
+    })
   })
 }

@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { World, Body, Box, Vec3, Material, ContactMaterial } from 'cannon-es'
+import { World, Body, Box, Vec3, Material, ContactMaterial, SAPBroadphase } from 'cannon-es'
 
 /**
  * sceneに物理エンジン搭載の床を設置
@@ -20,7 +20,6 @@ export default (textureLoader, scene) => {
   map.repeat.set(2, 2)
 
    const normalMap = textureLoader.load('/brick_wall_001_nor_gl_4k.jpg')
-  normalMap.encoding = THREE.sRGBEncoding
   normalMap.wrapS = THREE.RepeatWrapping
   normalMap.wrapT = THREE.RepeatWrapping
   normalMap.repeat.set(2, 2)
@@ -38,7 +37,7 @@ export default (textureLoader, scene) => {
     envMapIntensity: 1,
   })
   const bgPlane = new THREE.Mesh(bgGeometry, beMaterial)
-  bgPlane.position.set(15, 0, -10)
+  bgPlane.position.set(0, 0, -10)
   bgPlane.receiveShadow = true
   scene.add(bgPlane)
 
@@ -51,7 +50,7 @@ export default (textureLoader, scene) => {
   // 床（物理エンジン用）
   const floorBody = new Body({
     type: Body.STATIC,
-    shape: new Box(new Vec3(200, 0.2, 150)),
+    shape: new Box(new Vec3(100, 0.2, 75)),
     position: new Vec3(0, -2, 0),
   })
   world.addBody(floorBody)
@@ -83,6 +82,10 @@ export default (textureLoader, scene) => {
   const contactCannonMaterial = new ContactMaterial(textCannonMaterial, floorCannonMaterial, ContactMaterialOptions)
   floorBody.material = floorCannonMaterial
   world.addContactMaterial(contactCannonMaterial)
+
+  // 先に衝突判定のあるものを認識させる
+  world.broadphase = new SAPBroadphase(world)
+  world.allowSleep = true
 
   return {world, textCannonMaterial}
 }
