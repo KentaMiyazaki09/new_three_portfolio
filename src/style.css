@@ -337,7 +337,7 @@ h1,h2,h3,h4,h5,h6 {
 .btn {
   z-index: 99;
   position: fixed;
-  bottom: 4%;
+  top: 4%;
   left: 6%;
   width: 30px;
   height: 30px;

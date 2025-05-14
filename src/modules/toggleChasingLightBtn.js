@@ -18,7 +18,7 @@ export default (light, toggleIsFollowing) => {
     const y = (e.clientY / window.innerHeight - 0.5) * -2
     
     targetLightPosition.x = x * 10
-    targetLightPosition.y = y * 5
+    targetLightPosition.y = y * 30
   }
   function ontouchMove(e) {
     const touch = e.touches[0]
@@ -26,7 +26,7 @@ export default (light, toggleIsFollowing) => {
     const y = (touch.clientY / window.innerHeight - 0.5) * 2
   
     targetLightPosition.x = x * 10
-    targetLightPosition.y = y * 5
+    targetLightPosition.y = y * 30
   }
   document.getElementById('toggleChaseLightBtn').addEventListener('click', (e) => {
     e.currentTarget.classList.toggle('active')

@@ -8,7 +8,7 @@ import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
 export default (scene) => {
   return new Promise((resolve, reject) => {
     const rgbeLoader = new RGBELoader()
-    rgbeLoader.load('/rogland_clear_night_4k.hdr', function(texture) {
+    rgbeLoader.load('/texture/hdri_studio.hdr', function(texture) {
       texture.mapping = THREE.EquirectangularReflectionMapping
     
       scene.environment = texture

@@ -1,50 +1,55 @@
 import * as THREE from 'three'
 
-export default((scene) => {
-  // スポットライト
-  const spotLight = new THREE.SpotLight(0xFFFFFF, 5, 100, Math.PI / 3, 0.5, 0.7)
-  spotLight.position.set(25, -5, 38)
-  spotLight.rotation.set(10, 0, 0)
-  spotLight.castShadow = true
-  scene.add(spotLight)
+/**
+ * @param { Object } scene THREE.Scene()
+ * @param { Object } gui dut.gui()
+ */
 
-  //ライトヘルパー
-  // const spotLightFolder = gui.addFolder('spotLight')
-  // spotLightFolder.open()
+export default (scene, gui) => {
+  //(色, 光強さ, 距離, 照射角, ボケ, 減衰率)
+  const textLight = new THREE.SpotLight(0xFFFFFF, 10, 50, Math.PI / 4, 10, 0.7)
+  textLight.position.set(4, 14, 28)
+  textLight.castShadow = true
+  // 範囲を広げる
+  textLight.shadow.mapSize.width = 2048
+  textLight.shadow.mapSize.height = 2048
+  textLight.shadow.camera.left = -100;
+  textLight.shadow.camera.right = 100;
+  textLight.shadow.camera.top = 100;
+  textLight.shadow.camera.bottom = -100;
+  textLight.shadow.camera.near = 1;
+  textLight.shadow.camera.far = 200;
+  textLight.shadow.bias = -0.002;
 
-  // const spotLightHelper = new THREE.SpotLightHelper(spotLight, 10)
-  // scene.add(spotLightHelper)
+  scene.add(textLight)
 
-  // const spotLightPosition = {
-  //   x: spotLight.position.x,
-  //   y: spotLight.position.y,
-  //   z: spotLight.position.z,
-  // }
-  // spotLightFolder.add(spotLightPosition, 'x', -100, 100).onChange(() => {
-  //   spotLight.position.x = spotLightPosition.x
-  //   spotLightHelper.update()
-  // })
-  // spotLightFolder.add(spotLightPosition, 'y', -100, 100).onChange(() => {
-  //   spotLight.position.y = spotLightPosition.y
-  //   spotLightHelper.update()
-  // })
-  // spotLightFolder.add(spotLightPosition, 'z', -100, 100).onChange(() => {
-  //   spotLight.position.z = spotLightPosition.z
-  //   spotLightHelper.update()
-  // })
+  const spotlightHelper = new THREE.SpotLightHelper(textLight)
+  // scene.add(spotlightHelper)
 
-  // const spotLighthelperControls = {
-  //   showHelper: false,
-  // }
-  // spotLightFolder.add(spotLighthelperControls, 'showHelper').onChange((value) => {
-  //   if (value) {
-  //     if (!scene.children.includes(spotLightHelper)) {
-  //       scene.add(spotLightHelper)
-  //     }
-  //   } else {
-  //     if (scene.children.includes(spotLightHelper)) {
-  //       scene.remove(spotLightHelper)
-  //     }
-  //   }
-  // })
-})
+  // ライトgui
+  const textLightFolder = gui.addFolder('textLight')
+  textLightFolder.open()
+
+  const helperSetting = {
+    x: textLight.position.x,
+    y: textLight.position.y,
+    z: textLight.position.z,
+    color: `#${textLight.color.getHexString()}`,
+    showHelper: false
+  }
+
+  // On/Off
+  textLightFolder.add(helperSetting, 'showHelper').onChange((value) => {
+    if (value) {
+      if (!scene.children.includes(spotlightHelper)) {
+        scene.add(spotlightHelper)
+      }
+    } else {
+      if (scene.children.includes(spotlightHelper)) {
+        scene.remove(spotlightHelper)
+      }
+    }
+  })
+
+  return { textLight, spotlightHelper }
+}

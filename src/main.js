@@ -4,6 +4,8 @@ import * as THREE from 'three'
 import HDRI from './modules/HDRI'
 
 import directionalLight from './modules/directionalLight'
+
+import spotLight from './modules/spotLight'
 import toggleChasingLightBtn from './modules/toggleChasingLightBtn'
 
 import floor from './modules/floor'
@@ -35,18 +37,23 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 
 const renderer = new THREE.WebGLRenderer()
 renderer.outputEncoding = THREE.sRGBEncoding
+renderer.toneMapping = THREE.ACESFilmicToneMapping
+
 renderer.shadowMap.enabled = true
 renderer.shadowMap.autoUpdate = true
+
 document.body.appendChild(renderer.domElement)
 
 /* ライト */
 // テキストライト
-const textLight = directionalLight('text', true, scene, -7, -0.5, 25, gui)
+// const textLight = directionalLight('text', true, scene, -4.3, 18, 50, gui)
+const { textLight, spotlightHelper } = spotLight(scene, gui)
+
 // マウス追従
 const textLightPosition = toggleChasingLightBtn(textLight, toggleIsFollowing)
 
 // fried_eggライト
-directionalLight('egg', false, scene, -1, 22, 34, gui)
+directionalLight('egg', '#b7cbf2', 1.5, -4.3, 18, 50, scene, gui)
 
 /*
  * HDRI
@@ -62,35 +69,28 @@ HDRI(scene).then(() => {
   friedEgg(gltfLoader, scene)
 
   /* テキストジオメトリを追加 */
-  textGeo('WELCOME', textureLoader, -1.5, 20, 10, scene, world, textCannonMaterial)
-    .then(({ textMeshes, textBodies }) => {
+  textGeo('WELCOME', textureLoader, -2.5, 2.5, 17, scene)
 
-      /* アニメーション */
-      // const clock = new THREE.Clock()
-      function animate() {
-        world.step(1 / 60)
+  /* アニメーション */
+  // const clock = new THREE.Clock()
+  function animate() {
+    world.step(1 / 60)
 
-        // Cannon.jsのボディ位置をThree.jsのメッシュに反映
-        textBodies.forEach((body, index) => {
-          textMeshes[index].position.copy(body.position)
-          textMeshes[index].quaternion.copy(body.quaternion)
-        })
+    // テキストライトをスムーズに追従させる
+    if(isFollowing) {
+      textLight.position.lerp(textLightPosition, 0.1)
+      spotlightHelper.update()
+    }
 
-        // テキストライトをスムーズに追従させる
-        if(isFollowing) {
-          textLight.position.lerp(textLightPosition, 0.1)
-        }
+    renderer.render(scene, camera)
+    requestAnimationFrame(animate)
+  }
 
-        renderer.render(scene, camera)
-        requestAnimationFrame(animate)
-      }
+  /* init */
+  animate()
+  resize(camera, renderer)
 
-      /* init */
-      animate()
-      resize(camera, renderer)
-
-      window.addEventListener('resize', () => {
-        resize(camera, renderer)
-      })
-    })
+  window.addEventListener('resize', () => {
+    resize(camera, renderer)
+  })
 })

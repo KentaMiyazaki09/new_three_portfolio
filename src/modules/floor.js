@@ -13,13 +13,13 @@ export default (textureLoader, scene) => {
   /**
    * テクスチャ
    */
-  const map = textureLoader.load('/brick_wall_001_diffuse_4k.jpg')
+  const map = textureLoader.load('/texture/brick_diffuse.jpg')
   map.encoding = THREE.sRGBEncoding
   map.wrapS = THREE.RepeatWrapping
   map.wrapT = THREE.RepeatWrapping
   map.repeat.set(2, 2)
 
-  const normalMap = textureLoader.load('/brick_wall_001_nor_gl_4k.jpg')
+  const normalMap = textureLoader.load('/texture/brick_normal.jpg')
   normalMap.wrapS = THREE.RepeatWrapping
   normalMap.wrapT = THREE.RepeatWrapping
   normalMap.repeat.set(2, 2)
@@ -31,13 +31,13 @@ export default (textureLoader, scene) => {
   const beMaterial = new THREE.MeshStandardMaterial({
     map: map,
     normalMap: normalMap,
-    color: 0xf6f6f6,
-    roughness: 1.0,
-    metalness: 0.0,
-    envMapIntensity: 1,
+    color: 0xf9f9f9,
+    roughness: 0.4,
+    metalness: 0,
+    envMapIntensity: 0.5,
   })
   const bgPlane = new THREE.Mesh(bgGeometry, beMaterial)
-  bgPlane.position.set(0, 0, -10)
+  bgPlane.position.set(0, 0, -3)
   bgPlane.receiveShadow = true
   scene.add(bgPlane)
 
@@ -50,7 +50,7 @@ export default (textureLoader, scene) => {
   // 床（物理エンジン用）
   const floorBody = new Body({
     type: Body.STATIC,
-    shape: new Box(new Vec3(100, 0.2, 75)),
+    shape: new Box(new Vec3(100, 0.2, 75)), // 床の面積の半分
     position: new Vec3(0, -2, 0),
   })
   world.addBody(floorBody)
@@ -60,10 +60,10 @@ export default (textureLoader, scene) => {
   const floorMaterial = new THREE.MeshStandardMaterial({
     map: map,
     normalMap: normalMap,
-    color: 0xffffff,
-    roughness: 1.0,
+    color: 0xf9f9f9,
+    roughness: 0.4,
     metalness: 0,
-    envMapIntensity: 1,
+    envMapIntensity: 0.5,
   })
   const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial)
   floorMesh.position.y = -2
