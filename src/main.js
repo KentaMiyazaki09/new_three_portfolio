@@ -14,12 +14,20 @@ import friedEgg from './modules/model_fired_egg'
 
 /* dat gui */
 import * as dat from 'dat.gui'
+// const gui = null
 const gui = new dat.GUI()
 
 import resize from './functions/resize'
 
 import { GLTFLoader } from "three/examples/jsm/Addons.js"
 const gltfLoader = new GLTFLoader()
+
+// 追従フラグ
+let isFollowing = false
+function toggleIsFollowing() {
+  isFollowing = !isFollowing
+  return isFollowing
+}
 
 /* シーン、カメラ、レンダラー */
 const scene = new THREE.Scene()
@@ -33,12 +41,12 @@ document.body.appendChild(renderer.domElement)
 
 /* ライト */
 // テキストライト
-const textLight = directionalLight('text', true, scene, -7, -0.5, 25, gui) // text
+const textLight = directionalLight('text', true, scene, -7, -0.5, 25, gui)
 // マウス追従
-const targetLightPosition = toggleChasingLightBtn(textLight)
+const textLightPosition = toggleChasingLightBtn(textLight, toggleIsFollowing)
 
 // fried_eggライト
-directionalLight('egg', false, scene, -1, 22, 34, gui) // egg
+directionalLight('egg', false, scene, -1, 22, 34, gui)
 
 /*
  * HDRI
@@ -69,7 +77,9 @@ HDRI(scene).then(() => {
         })
 
         // テキストライトをスムーズに追従させる
-        textLight.position.lerp(targetLightPosition, 0.1)
+        if(isFollowing) {
+          textLight.position.lerp(textLightPosition, 0.1)
+        }
 
         renderer.render(scene, camera)
         requestAnimationFrame(animate)

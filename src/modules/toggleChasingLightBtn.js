@@ -2,17 +2,16 @@ import * as THREE from 'three'
 
 /**
  * @param { Object } light 追従を切り替えたいライト
+ * @param { Object } toggleIsFollowing 追従フラグ切り替えの関数
  * @return { Object } targetLightPosition 新しい位置を反映したライトのポジション
  */
-export default (light) => {
+export default (light, toggleIsFollowing) => {
   const targetLightPositionDefault = new THREE.Vector3(
     light.position.x,
     light.position.y,
     light.position.z,
   )
   const targetLightPosition = targetLightPositionDefault.clone()
-  
-  let isFollowing = false // 追従フラグ
   
   function onmouseMove(e) {
     const x = (e.clientX / window.innerWidth - 0.5) * 2
@@ -31,7 +30,8 @@ export default (light) => {
   }
   document.getElementById('toggleChaseLightBtn').addEventListener('click', (e) => {
     e.currentTarget.classList.toggle('active')
-    isFollowing = !isFollowing // 追従フラグ切り替え
+
+    const isFollowing = toggleIsFollowing()
   
     if(isFollowing) {
       window.addEventListener('mousemove', onmouseMove)
@@ -39,7 +39,6 @@ export default (light) => {
     } else {
       window.removeEventListener('mousemove', onmouseMove)
       window.removeEventListener('touchmove', ontouchMove)
-
       targetLightPosition.x = targetLightPositionDefault.x
       targetLightPosition.y = targetLightPositionDefault.y
     }

@@ -12,7 +12,7 @@ import * as THREE from 'three'
  * @return { Object } directionalLight
  */
 
-function createLight(name, shadowActive, scene, posX, posY, posZ, gui) {
+export default function createLight(name, shadowActive, scene, posX, posY, posZ, gui = null) {
   const directionalLight = new THREE.DirectionalLight('#fff1c1', 1)
   directionalLight.position.set(posX, posY, posZ)
 
@@ -34,42 +34,41 @@ function createLight(name, shadowActive, scene, posX, posY, posZ, gui) {
 
   scene.add(directionalLight)
 
-  const lightFolder = gui.addFolder(`${name} textLight`)
-  lightFolder.open()
-  const lightPosition = {
-    x: directionalLight.position.x,
-    y: directionalLight.position.y,
-    z: directionalLight.position.z,
-  }
-  lightFolder.add(lightPosition, 'x', -50, 50).onChange(() => {
-    directionalLight.position.x = lightPosition.x
-  })
-  lightFolder.add(lightPosition, 'y', -50, 50).onChange(() => {
-    directionalLight.position.y = lightPosition.y
-  })
-  lightFolder.add(lightPosition, 'z', -50, 50).onChange(() => {
-    directionalLight.position.z = lightPosition.z
-  })
+  if (gui) {
 
-  const helper = new THREE.DirectionalLightHelper(directionalLight)
-  const helperControls = {
-    showHelper: false,
-  }
-  lightFolder.add(helperControls, 'showHelper').onChange((value) => {
-    if (value) {
-      if (!scene.children.includes(helper)) {
-        scene.add(helper)
-      }
-    } else {
-      if (scene.children.includes(helper)) {
-        scene.remove(helper)
-      }
+    const lightFolder = gui.addFolder(`${name} textLight`)
+    lightFolder.open()
+    const lightPosition = {
+      x: directionalLight.position.x,
+      y: directionalLight.position.y,
+      z: directionalLight.position.z,
     }
-  })
+    lightFolder.add(lightPosition, 'x', -50, 50).onChange(() => {
+      directionalLight.position.x = lightPosition.x
+    })
+    lightFolder.add(lightPosition, 'y', -50, 50).onChange(() => {
+      directionalLight.position.y = lightPosition.y
+    })
+    lightFolder.add(lightPosition, 'z', -50, 50).onChange(() => {
+      directionalLight.position.z = lightPosition.z
+    })
+  
+    const helper = new THREE.DirectionalLightHelper(directionalLight)
+    const helperControls = {
+      showHelper: false,
+    }
+    lightFolder.add(helperControls, 'showHelper').onChange((value) => {
+      if (value) {
+        if (!scene.children.includes(helper)) {
+          scene.add(helper)
+        }
+      } else {
+        if (scene.children.includes(helper)) {
+          scene.remove(helper)
+        }
+      }
+    })
+  }
 
   return directionalLight
-}
-
-export default (name, shadowActive, scene, posX, posY, posZ, gui) => {
-  return createLight(name, shadowActive, scene, posX, posY, posZ, gui)
 }
