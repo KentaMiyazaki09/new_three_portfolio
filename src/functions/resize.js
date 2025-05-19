@@ -4,7 +4,7 @@
  */
 export default (camera, renderer) => {
   if(window.innerWidth < 768) {
-    camera.position.set(5, 10, 35)
+    camera.position.set(4, 10, 38)
     camera.fov = 75
   } else {
     camera.position.set(5, 10, 35)

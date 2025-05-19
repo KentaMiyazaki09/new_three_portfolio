@@ -52,7 +52,7 @@ const { textLight, spotlightHelper } = spotLight(scene, gui)
 const textLightPosition = toggleChasingLightBtn(textLight, toggleIsFollowing)
 
 // fried_eggライト
-directionalLight('egg', '#5a5ad8', 1.5, -4.3, 18, 50, scene, gui)
+directionalLight('egg', '#a8a8e8', 1.5, 2.3, 19, 7, scene, gui)
 
 /*
  * HDRI
