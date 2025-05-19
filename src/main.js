@@ -46,14 +46,13 @@ document.body.appendChild(renderer.domElement)
 
 /* ライト */
 // テキストライト
-// const textLight = directionalLight('text', true, scene, -4.3, 18, 50, gui)
 const { textLight, spotlightHelper } = spotLight(scene, gui)
 
 // マウス追従
 const textLightPosition = toggleChasingLightBtn(textLight, toggleIsFollowing)
 
 // fried_eggライト
-directionalLight('egg', '#b7cbf2', 1.5, -4.3, 18, 50, scene, gui)
+directionalLight('egg', '#5a5ad8', 1.5, -4.3, 18, 50, scene, gui)
 
 /*
  * HDRI

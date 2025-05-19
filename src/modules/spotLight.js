@@ -7,8 +7,8 @@ import * as THREE from 'three'
 
 export default (scene, gui) => {
   //(色, 光強さ, 距離, 照射角, ボケ, 減衰率)
-  const textLight = new THREE.SpotLight(0xFFFFFF, 10, 50, Math.PI / 4, 10, 0.7)
-  textLight.position.set(4, 14, 28)
+  const textLight = new THREE.SpotLight(0xFFFFFF, 1, 60, Math.PI / 4, 10, 0.5)
+  textLight.position.set(-3, 6, 30)
   textLight.castShadow = true
   // 範囲を広げる
   textLight.shadow.mapSize.width = 2048

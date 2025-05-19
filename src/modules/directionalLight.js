@@ -17,7 +17,7 @@ export default function createLight(name, color, intensity, posX, posY, posZ, sc
   scene.add(directionalLight)
 
   if (gui) {
-    const lightFolder = gui.addFolder(`${name} textLight`)
+    const lightFolder = gui.addFolder(`${name} Light`)
     lightFolder.open()
     const lightSetting = {
       x: directionalLight.position.x,
